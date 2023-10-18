@@ -1,0 +1,59 @@
+﻿@page "/depo/updateitem/{id:int}"
+@using depooo.Client.Services.Abstract;
+@using depooo.Shared.DTO;
+@using depooo.Shared.Model;
+@inject IProductService _productService
+@inject NavigationManager _navigationManager
+@inject IToastService _toastService
+
+<h3> Update Item</h3>
+
+<EditForm Model="updateProduct" OnValidSubmit="UpdateHandle">
+
+    <div class="form-group">
+        <label for="exampleInputEmail1">Name</label>
+        <input type="text" @bind-value="updateProduct.Name" class="form-control" id="exampleInputEmail1" placeholder="Name">
+    </div>
+    <div class="form-group">
+        <label for="exampleInputPassword1">Description</label>
+        <input type="text" @bind-value="updateProduct.Description" class="form-control" placeholder="Description">
+    </div>
+
+    <div class="form-group">
+        <label for="exampleInputEmail1">Price</label>
+        <input type="number" @bind-value="updateProduct.Price" class="form-control" id="exampleInputEmail1" placeholder="Price">
+    </div>
+    <div class="form-group">
+        <label for="exampleInputPassword1">Quantity</label>
+        <input type="number" @bind-value="updateProduct.Quantity" class="form-control" placeholder="Quantity">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+</EditForm>
+
+
+
+@code {
+    Product updateProduct = new Product(); 
+    [Parameter]
+    public int id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        updateProduct =(await _productService.GetById(id)).Data;
+    }
+    private async Task UpdateHandle()
+    {
+        var result =await _productService.Update(updateProduct);
+        if(result.Success)
+        {
+            _navigationManager.NavigateTo("depo");
+            _toastService.ShowSuccess(result.Message);
+        }
+    }
+}

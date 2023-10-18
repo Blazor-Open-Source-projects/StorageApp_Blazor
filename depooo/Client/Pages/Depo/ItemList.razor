@@ -1,0 +1,76 @@
+﻿@page "/depo"
+@using depooo.Client.Services.Abstract;
+@using depooo.Shared.Model;
+@inject IProductService _productService
+@inject IToastService _toastService
+@inject NavigationManager _navigationManager
+<h1>All Depo items</h1>
+<button @onclick="AddItem" type="button" class="btn btn-outline-secondary">Add item</button>
+
+<div class="container">
+    <div class="col-m-5">
+        <table class="table table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">TotalPrice</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in products)
+                {
+                    <tr>
+                        <th>@item.Name</th>
+                        <td>@item.Description</td>
+                        <td>@item.Price</td>
+                        <td>@item.Quantity</td>
+                        <td>@item.TotalPrice</td>
+                        <td>
+                           
+                            <button @onclick="() => DeleteItem(item)" type="button" class="btn btn-sm btn-outline-secondary">Delete</button>
+                            <button @onclick="() => UpdateItem(item)" type="button" class="btn btn-sm btn-outline-secondary">Update</button>
+                        </td>
+                    </tr>
+                    TotalPrice += item.TotalPrice;
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<h3 class="text-danger"> Total Price is :@TotalPrice</h3>
+
+
+@code {
+    IEnumerable<Product> products= new List<Product>();
+    public double TotalPrice { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        products =(await _productService.GetAll()).Data;
+    }
+
+    private async Task DeleteItem(Product product)
+    {
+
+        var result = await _productService.Delete(product.Id);
+        if(result.Success)
+        {
+            await OnInitializedAsync();
+            TotalPrice = 0;
+            _toastService.ShowInfo(result.Message);
+        }       
+    }
+    private async Task UpdateItem(Product product)
+    {
+        int id = product.Id;
+        _navigationManager.NavigateTo($"depo/updateitem/{id}");
+    }
+    private async Task AddItem()
+    {
+        _navigationManager.NavigateTo("/depo/additem");
+    }
+}

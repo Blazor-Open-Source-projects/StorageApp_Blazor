@@ -1,0 +1,48 @@
+﻿@page "/depo/additem"
+@using depooo.Client.Services.Abstract;
+@using depooo.Shared.DTO;
+@using Microsoft.AspNetCore.Components.Forms
+@inject IProductService _productService
+@inject NavigationManager _navigationManager
+@inject IToastService _toastService
+<h2> Add New Item</h2>
+
+<EditForm Model="product" OnValidSubmit="AddProduct">
+
+    <div class="form-group">
+        <label for="exampleInputEmail1">Name</label>
+        <input type="text" @bind-value ="product.Name" class="form-control" id="exampleInputEmail1" placeholder="Name">
+    </div>
+    <div class="form-group">
+        <label for="exampleInputPassword1">Description</label>
+        <input type="text" @bind-value="product.Description" class="form-control" placeholder="Description">
+    </div>
+
+    <div class="form-group">
+        <label for="exampleInputEmail1">Price</label>
+        <input type="number" @bind-value="product.Price" class="form-control" id="exampleInputEmail1" placeholder="Price">
+    </div>
+    <div class="form-group">
+        <label for="exampleInputPassword1">Quantity</label>
+        <input type="number" @bind-value="product.Quantity" class="form-control" placeholder="Quantity">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+
+</EditForm>
+
+@code {
+
+    ProductCreateDTO product  = new ProductCreateDTO();
+
+    private async Task AddProduct()
+    {
+        var result =await _productService.Add(product);
+        _navigationManager.NavigateTo("depo");
+        _toastService.ShowSuccess(result.Message);
+
+    }
+}
